@@ -1,9 +1,13 @@
 import mongoose from "mongoose";
-const { Schema } = mongoose;
 
-export default new Schema({
-	name: String, // String is shorthand for {type: String}
-	email: String,
-	password: String,
-	points: Number
-});
+export const UserSchema = new mongoose.Schema(
+    {
+        name: { type: String },
+        email: { type: String },
+        password: { type: String },
+        points: { type: Number },
+    },
+    { collection: "users", required: true }
+);
+
+export default UserSchema;
