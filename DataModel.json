@@ -1,0 +1,26 @@
+{
+	"pilot": {
+		"name": "Russell",
+		"team": "Mercedes",
+		"car": "W08",
+		"number": "44",
+		"points": "0",
+		"position": "0",
+		"status": "0",
+		"fastestLap": "0"
+	},
+	"team":{
+		"name": "Mercedes",
+		"points": "0",
+		"position": "0",
+		"pilots": ["Russell", "Hamilton"]
+	},
+	"track": {
+		"name": "Bahrain International Circuit",
+		"length": "5.412",
+		"laps": "57",
+		"country": "Bahrein",
+		"city": "Sakhir",
+		"weather": "Sunny"
+	}
+}
