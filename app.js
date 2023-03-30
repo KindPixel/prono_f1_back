@@ -6,10 +6,10 @@ import cors from "cors";
 import morgan from "morgan";
 
 const corsOptions = {
-  origin: ['http://localhost:3000', 'http://25.30.134.134:3000'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true,
+    origin: ["http://localhost:3000", "http://25.30.134.134:3000"],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
 };
 
 config();
@@ -27,6 +27,8 @@ app.use(cors(corsOptions));
 app.use("/f1/api/v1/users", UserRouter);
 // app.use("/f1/api/v1/pilots", PilotRouter);
 // app.use("/f1/api/v1/tracks", TrackRouter);
+
+
 
 app.listen(PORT, () => {
     console.log("Server running on port", PORT);

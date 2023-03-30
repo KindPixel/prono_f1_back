@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { config } from "dotenv";
-import UserSchema from "../models/User.js";
+import UserSchema from "../schema/User.js";
 
 // import PilotSchema from "../models/Pilot.js";
 // import TrackSchema from "../models/Track.js";

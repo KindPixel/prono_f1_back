@@ -6,95 +6,146 @@ const passwordRegexp = new RegExp(
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
 );
 
-export const UserController = {
-	async login(req, res) {
-        try {
-            const { email: emailIn, password } = req.body;
-            const {name, email, points} = await UserModel.findOne({ email: emailIn });
+const login = async (req, res) => {
+    try {
+        const { email: emailIn, password } = req.body;
+        const {
+            name,
+            email,
+            points,
+            password: hashPasswd,
+            _id,
+        } = await UserModel.findOne({ email: emailIn });
 
-            const correct = await checkPassword(password, user.password);
-			delete user.password;
+        const user = { name, email, points };
+        const correct = await checkPassword(password, hashPasswd);
 
-            if (correct) res.status(200).send(user);
-            else res.status(400).send("Incorrect password");
-        } catch (error) {
-            res.status(500).send(error);
+        if (!correct) {
+            res.status(400).send("Incorrect password");
+            return;
         }
-    },
 
-    async create(req, res) {
-        try {
-            const { nickname: name, email, password: passwordIn } = req.body;
+        await UserModel.findOneAndUpdate(
+            { _id: _id },
+            { lastLogin: Date.now() }
+        );
 
-            if (!mailRegexp.test(email)) {
-                res.status(400).send("Did not match email requirements");
-                return;
-            }
+        res.status(200).send(user);
+    } catch (error) {
+        console.log(error);
+        res.status(500).send(error);
+    }
+};
 
-            if (!name) {
-                res.status(400).send("Please provide name");
-                return;
-            }
+const create = async (req, res) => {
+    try {
+        const { nickname: name, email, password: passwordIn } = req.body;
 
-            // if (!passwordRegexp.test(password)) {
-            // 	res.status(400).send("Did not match password requirements");
-            // 	return;
-            // }
-
-            let points = 0;
-            const { hash: password, err } = await hashPassword(passwordIn);
-
-            if (err) {
-                res.status(500).send("Error while hashing password");
-                return;
-            }
-
-            const user = new UserModel({ name, email, password, points });
-            await user.save();
-
-            res.status(200).send(user);
-        } catch (error) {
-            console.log(error);
-            res.status(500).send(error);
+        const userEm = await UserModel.find({ email: email });
+        if (userEm.includes(email)) {
+            res.status(400).send("Email is already taken");
+            return;
         }
-    },
 
-    async getOne(req, res) {
-        try {
-            const user = await UserModel.findById(req.params.id);
-            res.status(200).send(user);
-        } catch (error) {
-            res.status(500).send(error);
+        const username = await UserModel.find({ name: name });
+        if (username.includes(name)) {
+            res.status(400).send("Name is already taken");
+            return;
         }
-    },
 
-	async getLeaderboard(req, res) {
-		try {
-			const users = await UserModel.find();
-			delete users.password;
-			delete users.email;
-			users.sort((a, b) => b.points - a.points);
-
-			res.status(200).send(users);
-		} catch (error) {
-			console.log(error);
-			res.status(500).send(error);
-		}
-	},
-
-    async update(req, res) {
-        try {
-            const user = await UserModel.findByIdAndUpdate(
-                req.params.id,
-                req.body
-            );
-            res.status(200).send(user);
-        } catch (error) {
-            res.status(500).send(error);
+        if (!mailRegexp.test(email)) {
+            res.status(400).send("Did not match email requirements");
+            return;
         }
-    },
 
+        if (!name) {
+            res.status(400).send("Please provide name");
+            return;
+        }
 
+        // if (!passwordRegexp.test(password)) {
+        // 	res.status(400).send("Did not match password requirements");
+        // 	return;
+        // }
+
+        let points = 0;
+        const { hash: password, err } = await hashPassword(passwordIn);
+
+        if (err) {
+            res.status(500).send("Error while hashing password");
+            return;
+        }
+
+        const user = new UserModel({ name, email, password, points });
+        await user.save();
+
+        res.status(200).send(user);
+    } catch (error) {
+        console.log(error);
+        res.status(500).send(error);
+    }
+};
+
+const getOne = async (req, res) => {
+    try {
+        const user = await UserModel.findById(req.params.id);
+        res.status(200).send(user);
+    } catch (error) {
+        console.log(error);
+        res.status(500).send(error);
+    }
+};
+
+const getAll = async (req, res) => {
+    try {
+        const users = await UserModel.find();
+        res.status(200).send(users);
+    } catch (error) {
+        console.log(error);
+        res.status(500).send(error);
+    }
+};
+
+const getLeaderboard = async (req, res) => {
+    try {
+        const users = await UserModel.find();
+
+        users.sort((a, b) => b.points - a.points);
+        const leaderboard = users.map((user, index) => {
+            return {
+                name: user.name,
+                points: user.points,
+                rank: index + 1,
+            };
+        });
+
+		res.status(200).send(leaderboard);
+    } catch (error) {
+        console.log(error);
+        res.status(500).send(error);
+    }
+};
+
+const update = async (req, res) => {
+    try {
+        const user = await UserModel.findByIdAndUpdate(req.params.id, req.body);
+        res.status(200).send(user);
+    } catch (error) {
+        console.log(error);
+        res.status(500).send(error);
+    }
+};
+
+const remove = async (req, res) => {};
+
+const UserController = {
+    login,
+    create,
+    getOne,
+    getAll,
+    getLeaderboard,
+    update,
+    remove,
 };
 
 export default UserController;
